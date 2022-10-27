@@ -10,8 +10,9 @@ const io = socketIO(server);
 const rooms = {};
 
 io.on('connect', socket => {
-    console.log('Player connected!');
-    
+    console.log('Player connected');
+
+
     socket.on('selectRoom', roomId => {
         if (rooms[roomId] == undefined) {
             rooms[roomId] = new Map();
@@ -29,30 +30,27 @@ io.on('connect', socket => {
     });
 });
 
-
 function initGame(roomId, players, socket) {
-    
     socket.on('position', pos => {
-        console.log('Position', pos);
-        io.to(roomId).emit('position', pos)
+        console.log('Position:', pos);
+        io.to(roomId).emit('position', pos);
     });
 
     socket.on('newGame', () => {
-        console.log('New game initiated!');
-        io.to(roomId).emit('newGame')
+        console.log('New game initited');
+        io.to(roomId).emit('newGame');
     });
 
     socket.on('disconnect', () => {
-        console.log('PLayer left!');
+        console.log('Player left');
         players.delete(socket);
-    })
-    
+    });
+
     let symbol = 'X';
     if (players.size > 0) {
         const otherSymbol = [...players.values()][0];
-
         if (otherSymbol == 'X') {
-            symbol = 'O'
+            symbol = 'O';
         }
     }
     players.set(socket, symbol);
@@ -61,3 +59,4 @@ function initGame(roomId, players, socket) {
 }
 
 server.listen(5000, () => console.log('Server listening on port 5000'));
+

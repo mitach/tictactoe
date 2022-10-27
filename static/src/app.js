@@ -17,7 +17,6 @@ function init(roomId) {
         socket.emit('selectRoom', roomId);
     });
 
-
 socket.on('symbol', newSymbol => {
     symbol = newSymbol;
     socket.on('position', place);
@@ -53,13 +52,13 @@ function startGame() {
     board.style.display = 'block';
 
     board.addEventListener('click', onClick);
+
     newGame();
 }
 
 function newGame() {
     [...document.querySelectorAll('.cell')].forEach(e => e.textContent = '');
 }
-
 
 function onClick(event) {
     if (event.target.classList.contains('cell')) {
@@ -70,7 +69,7 @@ function onClick(event) {
             socket.emit('position', {
                 id,
                 symbol
-            })
+            });
         }
     }
 }
@@ -84,17 +83,18 @@ function hasCombination() {
     for (let combination of combinations) {
         const result = combination.map(pos => document.getElementById(pos).textContent).join('');
         if (result == 'XXX') {
-            endGame('X');
+
+            return endGame('X');
         } else if (result == 'OOO') {
-            endGame('O');
+            return endGame('O');
         }
     }
 }
 
 function endGame(winner) {
-    const choice = confirm(`PLayer ${winner} wins!\nDo you want a rematch?`);
+    const choice = confirm(`Player ${winner} wins!\nDo you want a rematch?`);
     if (choice) {
-        socket.emit('newGame');
         // newGame();
+        socket.emit('newGame');
     }
 }
