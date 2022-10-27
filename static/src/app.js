@@ -15,18 +15,24 @@ function init(roomId) {
 
     socket.on('connect', () => {
         socket.emit('selectRoom', roomId);
+        socket.emit('initChat');
     });
 
-socket.on('symbol', newSymbol => {
-    symbol = newSymbol;
-    socket.on('position', place);
-    socket.on('newGame', newGame);
-    startGame();
-});
+    
+    socket.on('symbol', newSymbol => {
+        symbol = newSymbol;
+        socket.on('position', place);
+        socket.on('newGame', newGame);
+        startGame();
+    });
+    
+    socket.on('initChatOk', () => {
+        startChat(symbol, socket);
+    });
 
-socket.on('error', (error) => {
-    alert(error)
-})
+    socket.on('error', (error) => {
+        alert(error)
+    });
 
 
 }
@@ -49,7 +55,9 @@ const combinations = [
 function startGame() {
     document.getElementById('init').style.display = 'none';
     const board = document.getElementById('board');
+    const chat = document.getElementById('chat');
     board.style.display = 'block';
+    chat.style.display = 'block';
 
     board.addEventListener('click', onClick);
 
@@ -58,6 +66,24 @@ function startGame() {
 
 function newGame() {
     [...document.querySelectorAll('.cell')].forEach(e => e.textContent = '');
+}
+
+function startChat(nickname, socket) {
+    const chat = document.getElementById('chat-log');
+    const input = document.getElementById('message')
+    chat.value = '';
+
+    socket.on('message', ({source, message}) => {
+        chat.value += `Player ${source}: ${message} \n`;
+    })
+    
+    document.getElementById('send').addEventListener('click', () => {
+        const message = input.value;
+        input.value = '';
+        socket.emit('message', message);
+        
+        chat.value += `> Player ${nickname}: ${message} \n`;
+    })
 }
 
 function onClick(event) {

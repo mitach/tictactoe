@@ -12,8 +12,13 @@ const rooms = {};
 io.on('connect', socket => {
     console.log('Player connected');
 
+    socket.on('initChat', () => {
+        socket.emit('initChatOk')
+    })
 
     socket.on('selectRoom', roomId => {
+        console.log(roomId);
+
         if (rooms[roomId] == undefined) {
             rooms[roomId] = new Map();
         }
@@ -29,6 +34,14 @@ io.on('connect', socket => {
         }
     });
 });
+
+function initChat(socket, nickname) {
+    socket.emit('message', {source: 'Server', message: 'Wellcome to SocketIO sssss!'});
+
+    socket.on('message', message => {
+        socket.broadcast.emit('message', {source: nickname, message});
+     });
+}
 
 function initGame(roomId, players, socket) {
     socket.on('position', pos => {
@@ -56,6 +69,7 @@ function initGame(roomId, players, socket) {
     players.set(socket, symbol);
     console.log('Assigning symbol', symbol);
     socket.emit('symbol', symbol);
+    initChat(socket, symbol);
 }
 
 server.listen(5000, () => console.log('Server listening on port 5000'));

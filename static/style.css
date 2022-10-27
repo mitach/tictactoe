@@ -3,7 +3,9 @@
     display: none;
 }
 
-
+#chat {
+    display: none;
+}
 
 .row {
     height: 50px;
