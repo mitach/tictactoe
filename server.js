@@ -10,12 +10,6 @@ const io = socketIO(server);
 const rooms = {};
 
 io.on('connect', socket => {
-    console.log('Player connected');
-
-    socket.on('initChat', () => {
-        socket.emit('initChatOk')
-    })
-
     socket.on('selectRoom', roomId => {
         console.log(roomId);
 
@@ -35,15 +29,19 @@ io.on('connect', socket => {
     });
 });
 
-function initChat(socket, nickname) {
-    socket.emit('message', {source: 'Server', message: 'Wellcome to SocketIO sssss!'});
-
-    socket.on('message', message => {
-        socket.broadcast.emit('message', {source: nickname, message});
-     });
-}
-
 function initGame(roomId, players, socket) {
+    let symbol = 'X';
+
+    if (players.size > 0) {
+        const otherSymbol = [...players.values()][0];
+        if (otherSymbol == 'X') {
+            symbol = 'O';
+        }
+    }
+
+    players.set(socket, symbol);
+    socket.emit('symbol', symbol);
+
     socket.on('position', pos => {
         console.log('Position:', pos);
         io.to(roomId).emit('position', pos);
@@ -54,23 +52,14 @@ function initGame(roomId, players, socket) {
         io.to(roomId).emit('newGame');
     });
 
+    socket.on('message', message => {
+        io.to(roomId).emit('message', {source: symbol, message});
+    });
+
     socket.on('disconnect', () => {
         console.log('Player left');
         players.delete(socket);
     });
-
-    let symbol = 'X';
-    if (players.size > 0) {
-        const otherSymbol = [...players.values()][0];
-        if (otherSymbol == 'X') {
-            symbol = 'O';
-        }
-    }
-    players.set(socket, symbol);
-    console.log('Assigning symbol', symbol);
-    socket.emit('symbol', symbol);
-    initChat(socket, symbol);
 }
 
-server.listen(5000, () => console.log('Server listening on port 5000'));
-
+server.listen(3000, () => console.log('Server listening on port 3000'));
