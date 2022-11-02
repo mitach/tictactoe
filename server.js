@@ -11,8 +11,6 @@ const rooms = {};
 
 io.on('connect', socket => {
     socket.on('selectRoom', roomId => {
-        console.log(roomId);
-
         if (rooms[roomId] == undefined) {
             rooms[roomId] = new Map();
         }
